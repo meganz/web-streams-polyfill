@@ -1,18 +1,13 @@
 /// <reference lib="dom" />
 
-export function noop(): undefined {
-  return undefined;
+// eslint-disable-next-line @typescript-eslint/no-namespace
+declare namespace globalThis {
+  function nop(): undefined;
+  function freeze(): object;
 }
 
-function getGlobals() {
-  if (typeof self !== 'undefined') {
-    return self;
-  } else if (typeof window !== 'undefined') {
-    return window;
-  } else if (typeof global !== 'undefined') {
-    return global;
-  }
-  return undefined;
-}
+export const globals = typeof globalThis !== 'undefined' ? globalThis as any : self;
 
-export const globals = getGlobals();
+export const noop: (e: any) => undefined = globals.nop || (() => {
+  return undefined;
+});

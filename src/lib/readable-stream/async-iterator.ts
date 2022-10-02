@@ -20,7 +20,6 @@ import {
   newPromise,
   promiseRejectedWith,
   promiseResolvedWith,
-  queueMicrotask,
   transformPromiseWith
 } from '../helpers/webidl';
 

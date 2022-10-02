@@ -21,7 +21,7 @@ import {
   ReadIntoRequest
 } from './byob-reader';
 import assert from '../../stub/assert';
-import { newPromise, promiseResolvedWith, queueMicrotask, uponRejection } from '../helpers/webidl';
+import { newPromise, promiseResolvedWith, uponRejection } from '../helpers/webidl';
 import {
   ReadableStreamDefaultController,
   ReadableStreamDefaultControllerClose,

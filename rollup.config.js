@@ -5,13 +5,14 @@ const inject = require('@rollup/plugin-inject');
 const strip = require('@rollup/plugin-strip');
 const replace = require('@rollup/plugin-replace');
 const { terser } = require('rollup-plugin-terser');
+import cleanup from 'rollup-plugin-cleanup';
 
 const debug = false;
 
 const pkg = require('./package.json');
 const banner = `
 /**
- * ${pkg.name} v${pkg.version}
+ * ${pkg.name} v${pkg.version}.meganz
  */
 `.trim();
 
@@ -36,7 +37,7 @@ const keepNames = [
 const keepRegex = new RegExp(`^(${keepNames.join('|')})$`);
 
 function bundle(entry, { esm = false, minify = false, target = 'es5' } = {}) {
-  const outname = `${entry}${target === 'es5' ? '' : `.${target}`}`;
+  const outname = `${pkg.name}${target === 'es2018' ? '' : `.${target}`}`;
   return {
     input: `src/${entry}.ts`,
     output: [
@@ -45,8 +46,8 @@ function bundle(entry, { esm = false, minify = false, target = 'es5' } = {}) {
         format: 'umd',
         name: 'WebStreamsPolyfill',
         banner,
-        freeze: false,
-        sourcemap: true
+        freeze: true,
+        sourcemap: false
       },
       esm ? {
         file: `dist/${outname}${minify ? '.min' : ''}.mjs`,
@@ -64,8 +65,8 @@ function bundle(entry, { esm = false, minify = false, target = 'es5' } = {}) {
       }),
       inject({
         include: 'src/**/*.ts',
-        exclude: 'src/stub/symbol.ts',
-        modules: {
+        exclude: target === 'es2018' ? 'src/stub/*.ts' : 'src/stub/symbol.ts',
+        modules: target === 'es2018' ? {} : {
           Symbol: path.resolve(__dirname, './src/stub/symbol.ts')
         }
       }),
@@ -87,11 +88,20 @@ function bundle(entry, { esm = false, minify = false, target = 'es5' } = {}) {
         mangle: {
           toplevel: true
         }
-      }) : undefined
+      }) : cleanup({
+        comments: 'none',
+        sourcemap: false,
+        extensions: ['js', 'ts']
+      })
     ].filter(Boolean)
   };
 }
 
+module.exports = [
+  bundle('polyfill', { target: 'es2018' })
+];
+
+/**
 module.exports = [
   // polyfill
   bundle('polyfill', { esm: true }),
@@ -109,3 +119,4 @@ module.exports = [
   // ponyfill/es2018
   bundle('ponyfill', { target: 'es2018', esm: true })
 ];
+/**/

@@ -24,7 +24,14 @@ import {
 } from '../helpers/webidl';
 import { noop } from '../../utils';
 import { AbortSignal, isAbortSignal } from '../abort-signal';
-import { DOMException } from '../../stub/dom-exception';
+
+declare class MEGAException extends Error {
+  constructor(message?: string, data?: any, name?: string);
+
+  name: string;
+  data: any;
+  message: string;
+}
 
 export function ReadableStreamPipeTo<T>(source: ReadableStream<T>,
                                         dest: WritableStream<T>,
@@ -55,7 +62,7 @@ export function ReadableStreamPipeTo<T>(source: ReadableStream<T>,
     let abortAlgorithm: () => void;
     if (signal !== undefined) {
       abortAlgorithm = () => {
-        const error = new DOMException('Aborted', 'AbortError');
+        const error = new MEGAException('Aborted', signal, 'AbortError');
         const actions: Array<() => Promise<void>> = [];
         if (!preventAbort) {
           actions.push(() => {

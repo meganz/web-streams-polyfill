@@ -136,6 +136,6 @@ typings/
 .serverless
 
 ### Project
-/dist/
+/dist/types/
 /lib/
 /temp/

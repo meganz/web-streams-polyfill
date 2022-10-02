@@ -18,7 +18,21 @@ import { globals } from './utils';
 // Export
 export * from './ponyfill';
 
-const exports = {
+(e => {
+  const freeze = globals.freeze || Object.freeze;
+
+  for (const p in e) {
+    if (Object.prototype.hasOwnProperty.call(e, p)) {
+      Object.defineProperty(globals, p, {
+        value: e[p as (keyof typeof e)],
+        writable: true,
+        configurable: true
+      });
+    }
+  }
+
+  Object.defineProperty(globals, 'WebStreamsPolyfill', { value: freeze(e) });
+})({
   ReadableStream,
   ReadableStreamDefaultController,
   ReadableByteStreamController,
@@ -35,17 +49,4 @@ const exports = {
 
   TransformStream,
   TransformStreamDefaultController
-};
-
-// Add classes to global scope
-if (typeof globals !== 'undefined') {
-  for (const prop in exports) {
-    if (Object.prototype.hasOwnProperty.call(exports, prop)) {
-      Object.defineProperty(globals, prop, {
-        value: exports[prop as (keyof typeof exports)],
-        writable: true,
-        configurable: true
-      });
-    }
-  }
-}
+});
